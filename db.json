@@ -1,0 +1,24 @@
+{
+  "affirmations": [
+    { "text": "Você está seguro neste momento." },
+    { "text": "Respire fundo, tudo vai passar." },
+    { "text": "Você é mais forte do que pensa." },
+    { "text": "Permita-se sentir, sem julgamentos." },
+    { "text": "Seu bem-estar é importante." },
+    { "text": "Você não está sozinho." }
+  ],
+  "grounding": [
+    { "prompt": "Observe 5 coisas que você pode ver ao seu redor.", "color": "#1976d2" },
+    { "prompt": "Observe 4 coisas que você pode tocar.", "color": "#388e3c" },
+    { "prompt": "Ouça 3 sons ao seu redor.", "color": "#fbc02d" },
+    { "prompt": "Perceba 2 cheiros.", "color": "#8e24aa" },
+    { "prompt": "Note 12 sabor em sua boca.", "color": "#d32f2f" }
+  ],
+  "emergency": [
+    { "text": "Respire fundo. Você está seguro, mesmo que pareça difícil agora." },
+    { "text": "Olhe ao seu redor e encontre um objeto familiar." },
+    { "text": "Sinta o chão sob seus pés. Você está presente." },
+    { "text": "Repita para si: 'Isso vai passar. Eu consigo superar.'" },
+    { "text": "Se precisar, peça ajuda a alguém de confiança." }
+  ]
+}
