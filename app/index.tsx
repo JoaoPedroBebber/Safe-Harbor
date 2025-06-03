@@ -51,7 +51,7 @@ export default function HomeScreen() {
       </Modal>
 
       <View style={styles.buttonRow}>
-        <TouchableOpacity style={styles.button} onPress={() => router.push('/Respiração')}>
+        <TouchableOpacity style={styles.button} onPress={() => router.push('/respiracao')}>
           <Text style={styles.buttonText}>Respiração Guiada</Text>
         </TouchableOpacity>
         <Ionicons
@@ -63,7 +63,7 @@ export default function HomeScreen() {
         />
       </View>
       <View style={styles.buttonRow}>
-        <TouchableOpacity style={styles.button} onPress={() => router.push('/Afirmação')}>
+        <TouchableOpacity style={styles.button} onPress={() => router.push('/afirmacao')}>
           <Text style={styles.buttonText}>Frases de Apoio</Text>
         </TouchableOpacity>
         <Ionicons
@@ -75,7 +75,7 @@ export default function HomeScreen() {
         />
       </View>
       <View style={styles.buttonRow}>
-        <TouchableOpacity style={styles.button} onPress={() => router.push('/Grounding')}>
+        <TouchableOpacity style={styles.button} onPress={() => router.push('/grounding')}>
           <Text style={styles.buttonText}>Grounding</Text>
         </TouchableOpacity>
         <Ionicons
@@ -87,7 +87,7 @@ export default function HomeScreen() {
         />
       </View>
       <View style={styles.buttonRow}>
-        <TouchableOpacity style={styles.button} onPress={() => router.push('/Diario')}>
+        <TouchableOpacity style={styles.button} onPress={() => router.push('/diario')}>
           <Text style={styles.buttonText}>Diário</Text>
         </TouchableOpacity>
         <Ionicons
@@ -99,7 +99,7 @@ export default function HomeScreen() {
         />
       </View>
       <View style={styles.buttonRow}>
-        <TouchableOpacity style={[styles.button, styles.emergency]} onPress={() => router.push('/Emergencia')}>
+        <TouchableOpacity style={[styles.button, styles.emergency]} onPress={() => router.push('/emergencia')}>
           <Text style={styles.buttonText}>Estou em crise</Text>
         </TouchableOpacity>
         <Ionicons
@@ -112,11 +112,7 @@ export default function HomeScreen() {
       </View>
 
       <View style={styles.footer}>
-        <TouchableOpacity style={styles.footerButton} onPress={() => router.push('/')}>
-          <Ionicons name="home" size={28} color="#1976d2" />
-          <Text style={styles.footerText}>Home</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.footerButton} onPress={() => router.push('/Sobre')}>
+        <TouchableOpacity style={styles.footerButton} onPress={() => router.replace('/Sobre')}>
           <Ionicons name="person-circle" size={28} color="#1976d2" />
           <Text style={styles.footerText}>Sobre</Text>
         </TouchableOpacity>
@@ -142,11 +138,18 @@ const styles = StyleSheet.create({
   modalButton: { backgroundColor: '#1976d2', borderRadius: 8, paddingVertical: 8, paddingHorizontal: 24 },
 
   // Footer styles
-  footer: { flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', width: '100%', padding: 10, backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#ddd' },
+  footer: { 
+    flexDirection: 'row', 
+    justifyContent: 'center', // centraliza o conteúdo
+    alignItems: 'center', 
+    width: '100%', 
+    padding: 10, 
+    backgroundColor: '#fff', 
+    borderTopWidth: 1, 
+    borderTopColor: '#ddd' 
+  },
   footerButton: { flexDirection: 'column', alignItems: 'center' },
   footerText: { color: '#1976d2', fontSize: 12, marginTop: 4 },
-
-  
 });
 
 export const options = {

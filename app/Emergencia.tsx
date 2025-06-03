@@ -10,7 +10,7 @@ export default function EmergencyScreen() {
 
   useEffect(() => {
     setTimeout(() => {
-      const data = require('../assets/data/emergency.json');
+      const data = require('../assets/data/emergency.json')
       setSteps(data);
       setLoading(false);
     }, 1000);

@@ -1,7 +1,7 @@
 [
   { "prompt": "Observe 5 coisas que você pode ver ao seu redor.", "color": "#1976d2" },
-  { "prompt": "Observe 4 coisas que você pode tocar.", "color": "#388e3c" },
-  { "prompt": "Ouça 3 sons ao seu redor.", "color": "#fbc02d" },
-  { "prompt": "Perceba 2 cheiros.", "color": "#8e24aa" },
-  { "prompt": "Note 1 sabor em sua boca.", "color": "#d32f2f" }
+  { "prompt": "Perceba 4 coisas que você pode tocar.", "color": "#388e3c" },
+  { "prompt": "Escute 3 sons que você consegue ouvir.", "color": "#fbc02d" },
+  { "prompt": "Sinta 2 cheiros diferentes.", "color": "#d32f2f" },
+  { "prompt": "Identifique 1 sabor que está presente em sua boca.", "color": "#7b1fa2" }
 ]

@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons'; // Adicione este import
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -32,13 +33,16 @@ export default function AffirmationsScreen() {
 
   return (
     <View style={styles.container}>
+      {/* Botão de voltar no topo */}
+      <TouchableOpacity style={styles.headerBack} onPress={() => router.replace('/')}>
+        <Ionicons name="arrow-back" size={28} color="#1976d2" />
+        <Text style={styles.headerBackText}>Voltar</Text>
+      </TouchableOpacity>
+
       <Text style={styles.title}>Frases de Apoio</Text>
       <Text style={styles.affirmation}>{affirmations[index]}</Text>
       <TouchableOpacity style={styles.button} onPress={nextAffirmation}>
         <Text style={styles.buttonText}>Próxima</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-        <Text style={styles.backText}>Voltar</Text>
       </TouchableOpacity>
     </View>
   );
@@ -46,10 +50,10 @@ export default function AffirmationsScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#e3f2fd' },
+  headerBack: { position: 'absolute', top: 50, left: 20, flexDirection: 'row', alignItems: 'center', padding: 8 },
+  headerBackText: { color: '#1976d2', fontSize: 18, marginLeft: 6, fontWeight: 'bold' },
   title: { fontSize: 28, fontWeight: 'bold', marginBottom: 30, color: '#1976d2' },
   affirmation: { fontSize: 22, marginBottom: 30, color: '#1976d2', textAlign: 'center', paddingHorizontal: 20 },
   button: { backgroundColor: '#1976d2', padding: 14, borderRadius: 8, marginBottom: 20, width: 180, alignItems: 'center' },
   buttonText: { color: '#fff', fontSize: 18 },
-  backButton: { marginTop: 10, padding: 12, backgroundColor: '#1976d2', borderRadius: 8 },
-  backText: { color: '#fff', fontSize: 18 },
 });

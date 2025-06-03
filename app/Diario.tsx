@@ -1,6 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
-import React, { useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useEffect, useState } from 'react';
 import { Alert, FlatList, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useRouter } from 'expo-router'; // Adicione este import
 
 type Anotacao = {
   id: number;
@@ -9,51 +11,69 @@ type Anotacao = {
 };
 
 export default function DiarioScreen() {
+  const router = useRouter(); // Adicione esta linha
   const [anotacao, setAnotacao] = useState('');
   const [anotacoes, setAnotacoes] = useState<Anotacao[]>([]);
   const [editando, setEditando] = useState<Anotacao | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [novoTexto, setNovoTexto] = useState('');
 
-  // Adicionar anotação
-  function adicionarAnotacao() {
+  useEffect(() => {
+    carregarAnotacoes();
+  }, []);
+
+  async function carregarAnotacoes() {
+    const data = await AsyncStorage.getItem('diario');
+    if (data) {
+      setAnotacoes(JSON.parse(data));
+    }
+  }
+
+  async function salvarAnotacoes(novas: Anotacao[]) {
+    setAnotacoes(novas);
+    await AsyncStorage.setItem('diario', JSON.stringify(novas));
+  }
+
+  async function adicionarAnotacao() {
     if (!anotacao.trim()) return;
-    const novaAnotacao = {
+    const dataAtual = new Date().toLocaleString();
+    const nova: Anotacao = {
       id: Date.now(),
       texto: anotacao,
-      data: new Date().toLocaleString(),
+      data: dataAtual,
     };
-    setAnotacoes([novaAnotacao, ...anotacoes]);
+    const novas = [nova, ...anotacoes];
+    await salvarAnotacoes(novas);
     setAnotacao('');
   }
 
-  // Excluir anotação
-  function excluirAnotacao(id: number) {
+  async function excluirAnotacao(id: number) {
     Alert.alert('Excluir', 'Deseja excluir esta anotação?', [
       { text: 'Cancelar', style: 'cancel' },
       {
         text: 'Excluir',
         style: 'destructive',
-        onPress: () => {
-          setAnotacoes(anotacoes.filter(a => a.id !== id));
+        onPress: async () => {
+          const novas = anotacoes.filter(a => a.id !== id);
+          await salvarAnotacoes(novas);
         },
       },
     ]);
   }
 
-  // Abrir modal de edição
   function editarAnotacao(anotacao: Anotacao) {
     setEditando(anotacao);
     setNovoTexto(anotacao.texto);
     setModalVisible(true);
   }
 
-  // Salvar edição
-  function salvarEdicao() {
+  async function salvarEdicao() {
     if (!novoTexto.trim() || !editando) return;
-    setAnotacoes(anotacoes.map(a =>
-      a.id === editando.id ? { ...a, texto: novoTexto, data: new Date().toLocaleString() } : a
-    ));
+    const dataAtual = new Date().toLocaleString();
+    const novas = anotacoes.map(a =>
+      a.id === editando.id ? { ...a, texto: novoTexto, data: dataAtual } : a
+    );
+    await salvarAnotacoes(novas);
     setModalVisible(false);
     setEditando(null);
     setNovoTexto('');
@@ -61,6 +81,12 @@ export default function DiarioScreen() {
 
   return (
     <View style={styles.container}>
+      {/* Botão de voltar no topo */}
+      <TouchableOpacity style={styles.headerBack} onPress={() => router.replace('/')}>
+        <Ionicons name="arrow-back" size={28} color="#1976d2" />
+        <Text style={styles.headerBackText}>Voltar</Text>
+      </TouchableOpacity>
+
       <Text style={styles.title}>Diário</Text>
       <Text style={styles.text}>Registre suas anotações do dia a dia.</Text>
 
@@ -131,6 +157,8 @@ export default function DiarioScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 24, backgroundColor: '#fff' },
+  headerBack: { position: 'absolute', top: 50, left: 20, flexDirection: 'row', alignItems: 'center', padding: 8 },
+  headerBackText: { color: '#1976d2', fontSize: 18, marginLeft: 6, fontWeight: 'bold' },
   title: { fontSize: 28, fontWeight: 'bold', marginBottom: 10, color: '#1976d2', textAlign: 'center' },
   text: { fontSize: 18, color: '#333', textAlign: 'center', marginBottom: 20 },
   inputRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 16 },
