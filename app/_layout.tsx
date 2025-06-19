@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { UserProvider } from './app-context/UserContext';
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -17,9 +18,12 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Slot />
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <UserProvider>
+      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        {/* <PerfilButton /> foi removido daqui */}
+        <Slot />
+        <StatusBar style="auto" />
+      </ThemeProvider>
+    </UserProvider>
   );
 }

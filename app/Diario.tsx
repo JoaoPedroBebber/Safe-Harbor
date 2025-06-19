@@ -1,17 +1,21 @@
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
-import { Alert, FlatList, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, Button, FlatList, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router'; // Adicione este import
+import { UserProvider, useUser } from './app-context/UserContext'; // Ajuste o caminho conforme necessário
 
 type Anotacao = {
-  id: number;
-  texto: string;
+  id: string;
+  conteudo: string;
   data: string;
 };
 
+const API_URL = 'http://localhost:3000/diario'; // Troque para seu IP se testar no celular
+
 export default function DiarioScreen() {
-  const router = useRouter(); // Adicione esta linha
+  const { user } = useUser();
+  const router = useRouter();
   const [anotacao, setAnotacao] = useState('');
   const [anotacoes, setAnotacoes] = useState<Anotacao[]>([]);
   const [editando, setEditando] = useState<Anotacao | null>(null);
@@ -19,13 +23,23 @@ export default function DiarioScreen() {
   const [novoTexto, setNovoTexto] = useState('');
 
   useEffect(() => {
+    if (!user) {
+      router.replace('/login');
+    }
+  }, [user]);
+
+  useEffect(() => {
     carregarAnotacoes();
   }, []);
 
   async function carregarAnotacoes() {
-    const data = await AsyncStorage.getItem('diario');
-    if (data) {
-      setAnotacoes(JSON.parse(data));
+    if (!user) return;
+    try {
+      const res = await fetch(`http://localhost:3000/diario?idUser=${user.id}`);
+      const data = await res.json();
+      setAnotacoes(data);
+    } catch (e) {
+      Alert.alert('Erro', 'Não foi possível carregar as anotações.');
     }
   }
 
@@ -35,27 +49,41 @@ export default function DiarioScreen() {
   }
 
   async function adicionarAnotacao() {
-    if (!anotacao.trim()) return;
-    const dataAtual = new Date().toLocaleString();
-    const nova: Anotacao = {
-      id: Date.now(),
-      texto: anotacao,
-      data: dataAtual,
-    };
-    const novas = [nova, ...anotacoes];
-    await salvarAnotacoes(novas);
-    setAnotacao('');
+    if (!anotacao.trim() || !user) return;
+    try {
+      const res = await fetch('http://localhost:3000/diario', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ conteudo: anotacao, idUser: user.id }),
+      });
+      if (res.ok) {
+        carregarAnotacoes();
+        setAnotacao('');
+      }
+    } catch (e) {
+      Alert.alert('Erro', 'Não foi possível adicionar a anotação.');
+    }
   }
 
-  async function excluirAnotacao(id: number) {
+  async function excluirAnotacao(id: string) {
+    console.log('Excluir anotação com id:', id); // Debug: veja o id
     Alert.alert('Excluir', 'Deseja excluir esta anotação?', [
       { text: 'Cancelar', style: 'cancel' },
       {
         text: 'Excluir',
         style: 'destructive',
         onPress: async () => {
-          const novas = anotacoes.filter(a => a.id !== id);
-          await salvarAnotacoes(novas);
+          try {
+            const res = await fetch(`http://localhost:3000/diario/${id}`, { method: 'DELETE' });
+            console.log('Status da exclusão:', res.status); // Debug: veja o status
+            if (res.ok) {
+              carregarAnotacoes();
+            } else {
+              Alert.alert('Erro', 'Não foi possível excluir.');
+            }
+          } catch (e) {
+            Alert.alert('Erro', 'Não foi possível excluir.');
+          }
         },
       },
     ]);
@@ -63,20 +91,31 @@ export default function DiarioScreen() {
 
   function editarAnotacao(anotacao: Anotacao) {
     setEditando(anotacao);
-    setNovoTexto(anotacao.texto);
+    setNovoTexto(anotacao.conteudo);
+    setModalVisible(true);
+  }
+
+  function abrirModalEdicao(item: any) {
+    setEditando(item);
+    setNovoTexto(item.conteudo);
     setModalVisible(true);
   }
 
   async function salvarEdicao() {
     if (!novoTexto.trim() || !editando) return;
-    const dataAtual = new Date().toLocaleString();
-    const novas = anotacoes.map(a =>
-      a.id === editando.id ? { ...a, texto: novoTexto, data: dataAtual } : a
-    );
-    await salvarAnotacoes(novas);
-    setModalVisible(false);
-    setEditando(null);
-    setNovoTexto('');
+    try {
+      await fetch(`${API_URL}/${editando.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ conteudo: novoTexto }),
+      });
+      setModalVisible(false);
+      setEditando(null);
+      setNovoTexto('');
+      carregarAnotacoes();
+    } catch (e) {
+      Alert.alert('Erro', 'Não foi possível editar.');
+    }
   }
 
   return (
@@ -103,26 +142,41 @@ export default function DiarioScreen() {
       </View>
 
       <FlatList
-        data={anotacoes}
-        keyExtractor={item => item.id.toString()}
-        style={{ width: '100%' }}
-        contentContainerStyle={{ paddingBottom: 40 }}
-        renderItem={({ item }) => (
-          <View style={styles.noteBox}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Text style={styles.noteText}>{item.texto}</Text>
-              <TouchableOpacity onPress={() => editarAnotacao(item)}>
-                <Ionicons name="pencil" size={22} color="#1976d2" style={{ marginLeft: 10 }} />
-              </TouchableOpacity>
-            </View>
-            <Text style={styles.noteDate}>{item.data}</Text>
-            <TouchableOpacity onPress={() => excluirAnotacao(item.id)}>
-              <Text style={styles.deleteText}>Excluir</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-        ListEmptyComponent={<Text style={{ textAlign: 'center', marginTop: 20 }}>Nenhuma anotação ainda.</Text>}
+  data={anotacoes}
+  keyExtractor={item => item.id}
+  renderItem={({ item }) => (
+    <View
+      style={{
+        padding: 12,
+        borderBottomWidth: 1,
+        borderColor: '#eee',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+      }}
+    >
+      <TouchableOpacity
+        style={{ flex: 1 }}
+        onLongPress={() => editarAnotacao(item)}
+      >
+        <Text>{item.conteudo}</Text>
+      </TouchableOpacity>
+      <Button
+        title="Excluir"
+        color="red"
+        onPress={() => {
+          console.log('Excluir', item.id); // debug
+          excluirAnotacao(item.id);
+        }}
       />
+    </View>
+  )}
+  ListEmptyComponent={
+    <Text style={{ textAlign: 'center', marginTop: 20 }}>
+      Nenhuma anotação ainda.
+    </Text>
+  }
+/>
 
       {/* Modal de edição */}
       <Modal
